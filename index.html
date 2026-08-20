@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anjo Nexus - Consulta de CNPJ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo">Anjo <span>Nexus</span></div>
+      <p class="subtitle">Módulo de Consulta Cadastral de Pessoas Jurídicas</p>
+    </header>
+
+    <main class="app-content">
+      <!-- Painel de Testes Rápidos -->
+      <section class="test-panel" aria-labelledby="test-panel-title">
+        <h2 id="test-panel-title">Painel de Testes Rápidos</h2>
+        <p class="panel-desc">Selecione um cenário para testar o comportamento e tratamento de erros da aplicação:</p>
+        <div class="test-buttons">
+          <button class="btn btn-test" data-test="200" title="Insere um CNPJ real e realiza a busca">
+            <span class="status-badge status-200">200</span> Sucesso (Real)
+          </button>
+          <button class="btn btn-test" data-test="400" title="Insere um CNPJ com formato inválido">
+            <span class="status-badge status-400">400</span> Requisição Inválida
+          </button>
+          <button class="btn btn-test" data-test="404" title="Insere um CNPJ inexistente">
+            <span class="status-badge status-404">404</span> Não Encontrado
+          </button>
+          <button class="btn btn-test" data-test="500" title="Simula uma falha crítica no servidor">
+            <span class="status-badge status-500">500</span> Erro de Servidor
+          </button>
+        </div>
+      </section>
+
+      <!-- Formulário de Busca -->
+      <section class="search-section">
+        <form id="search-form" class="search-form">
+          <div class="input-group">
+            <label for="cnpj-input" class="sr-only">Digite o CNPJ</label>
+            <input 
+              type="text" 
+              id="cnpj-input" 
+              placeholder="00.000.000/0000-00" 
+              maxlength="18"
+              required
+              autocomplete="off"
+            >
+            <button type="submit" class="btn btn-primary" id="btn-search">
+              <span>Buscar</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Container para Resultados/Feedback -->
+      <section id="result-container" class="result-container" aria-live="polite">
+        <div class="empty-state">
+          <p>Insira um CNPJ acima ou utilize o Painel de Testes Rápidos para iniciar.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

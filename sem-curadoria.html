@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anjo Nexus - UC-11: Consulta CNPJ</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-hover: #1d4ed8;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --success-bg: #ecfdf5;
+      --danger: #ef4444;
+      --danger-bg: #fef2f2;
+      --focus-ring: #93c5fd;
+      --transition: all 0.2s ease-in-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header.main-header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+    }
+
+    .brand {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Layout Responsivo em Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 400px 1fr;
+      }
+    }
+
+    /* Painel de Controle e Formulário */
+    .control-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: var(--background);
+      transition: var(--transition);
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: var(--surface);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+      background-color: var(--border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* Simulação rápida dos Payloads do PDF */
+    .sandbox-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    .sandbox-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .sandbox-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .btn-sandbox {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-sandbox:hover {
+      background-color: #f1f5f9;
+      border-color: var(--text-muted);
+    }
+
+    /* Área de Resultados */
+    .results-panel {
+      min-height: 250px;
+    }
+
+    .state-empty {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .state-empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    /* Card de exibição da Empresa */
+    .card-empresa {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      background-color: #fafbfc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .razao-social {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0.35rem 0;
+    }
+
+    .cnpj-subtle {
+      font-size: 0.875rem;
+      font-family: monospace;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .status-ativa {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status-inativa {
+      background-color: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .info-group {
+      margin-bottom: 1rem;
+    }
+
+    .info-group.border-top {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .info-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-top: 0.25rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (min-width: 600px) {
+      .info-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Componente de Alerta */
+    .alerta {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid;
+      margin-bottom: 1.5rem;
+    }
+
+    .alerta-error {
+      background-color: var(--danger-bg);
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .alerta-error .alerta-titulo {
+      color: #7f1d1d;
+    }
+
+    .alerta-info {
+      background-color: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .alerta-titulo {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .alerta-corpo {
+      font-size: 0.875rem;
+    }
+
+    /* Animação do Carregamento */
+    .loader-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-muted);
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="main-header">
+      <div class="brand">Anjo Nexus</div>
+      <h1>UC-11: Consultar Dados por CNPJ</h1>
+      <p class="subtitle">Insira o CNPJ da startup sob consultoria para resgatar dados públicos integrados em tempo real.</p>
+    </header>
+
+    <div class="dashboard-grid">
+      <!-- Painel Esquerdo: Entrada de dados e Mock Sandbox -->
+      <aside class="control-panel">
+        <form id="form-cnpj" novalidate>
+          <div class="form-group">
+            <label for="cnpj-input">CNPJ do Alvo</label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="cnpj-input" 
+                placeholder="00.000.000/0000-00" 
+                maxlength="18"
+                autocomplete="off"
+                required
+              >
+            </div>
+          </div>
+          <button type="submit" class="btn-submit" id="btn-buscar">Consultar Base</button>
+        </form>
+
+        <!-- Sandbox com os payloads exatos presentes na documentação anexada -->
+        <div class="sandbox-section">
+          <h3 class="sandbox-title">Painel de Testes Rápidos (PDF)</h3>
+          <div class="sandbox-buttons">
+            <button class="btn-sandbox" id="mock-success">
+              🟢 <strong>Código 200:</strong> OK Brasil (MOCK)
+            </button>
+            <button class="btn-sandbox" id="mock-err-400">
+              🟡 <strong>Código 400:</strong> Erro de Validação
+            </button>
+            <button class="btn-sandbox" id="mock-err-404">
+              🔴 <strong>Código 404:</strong> Não Localizado
+            </button>
+            <button class="btn-sandbox" id="mock-err-500">
+              ⚫ <strong>Código 500:</strong> Instabilidade API
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Painel Direito: Exibição Dinâmica (DOM) -->
+      <main class="results-panel" id="results-outlet">
+        <div class="state-empty" id="state-idle">
+          <div class="state-empty-icon" aria-hidden="true">🏢</div>
+          <h3>Nenhum CNPJ Consultada</h3>
+          <p>Utilize o formulário ou selecione um caso de teste no painel lateral.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { formatarCNPJ, mapearDadosCNPJ } from './utils.js';
+    import { gerarCardEmpresaHTML, gerarAlertaHTML, gerarLoaderHTML } from './templates.js';
+
+    // Mock das respostas técnicas disponibilizadas na especificação do projeto
+    const MOCKS = {
+      200: {
+        uf: "SP",
+        cep: "01311902",
+        cnpj: "19131243000197",
+        porte: "DEMAIS",
+        bairro: "BELA VISTA",
+        numero: "37",
+        municipio: "SAO PAULO",
+        logradouro: "PAULISTA 37",
+        cnae_fiscal: 9430800,
+        complemento: "ANDAR 4",
+        razao_social: "OPEN KNOWLEDGE BRASIL",
+        cnae_fiscal_descricao: "Atividades de associações de defesa de direitos sociais",
+        data_inicio_atividade: "2013-10-03",
+        descricao_situacao_cadastral: "ATIVA"
+      },
+      400: {
+        name: "BadRequestError",
+        message: "CNPJ deve conter exatamente 14 caracteres.",
+        type: "bad_request"
+      },
+      404: {
+        name: "NotFoundError",
+        message: "CNPJ 00.000.000/0001-91 não encontrado.",
+        type: "not_found"
+      }
+    };
+
+    const DOM = {
+      form: document.getElementById("form-cnpj"),
+      input: document.getElementById("cnpj-input"),
+      btnBuscar: document.getElementById("btn-buscar"),
+      outlet: document.getElementById("results-outlet"),
+      btnMockSuccess: document.getElementById("mock-success"),
+      btnMock400: document.getElementById("mock-err-400"),
+      btnMock404: document.getElementById("mock-err-404"),
+      btnMock500: document.getElementById("mock-err-500")
+    };
+
+    /**
+     * Aplica máscara de CNPJ ao digitar no campo.
+     */
+    const handleInputMask = (e) => {
+      let value = e.target.value.replace(/\D/g, "");
+      if (value.length > 14) value = value.slice(0, 14);
+      
+      // Aplicar máscara progressiva
+      if (value.length > 12) {
+        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+      } else if (value.length > 8) {
+        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})$/, "$1.$2.$3/$4");
+      } else if (value.length > 5) {
+        value = value.replace(/^(\d{2})(\d{3})(\d{1,3})$/, "$1.$2.$3");
+      } else if (value.length > 2) {
+        value = value.replace(/^(\d{2})(\d{1,3})$/, "$1.$2");
+      }
+      e.target.value = value;
+    };
+
+    /**
+     * Alterna o estado de carregamento do formulário e dos botões.
+     * @param {boolean} isLoading 
+     */
+    const setLoaderState = (isLoading) => {
+      DOM.btnBuscar.disabled = isLoading;
+      DOM.input.disabled = isLoading;
+      if (isLoading) {
+        DOM.outlet.innerHTML = gerarLoaderHTML();
+      }
+    };
+
+    /**
+     * Executa a requisição real ou injeta a resposta simulada com atraso estético.
+     * @param {string} cnpj 
+     */
+    const realizarConsultaCNPJ = async (cnpj) => {
+      const cleanCnpj = cnpj.replace(/\D/g, "");
+      
+      if (cleanCnpj.length !== 14) {
+        DOM.outlet.innerHTML = gerarAlertaHTML(
+          "Formato Inválido",
+          "O CNPJ deve conter exatamente 14 caracteres numéricos para consulta.",
+          "error"
+        );
+        return;
+      }
+
+      setLoaderState(true);
+
+      try {
+        // Consultar BrasilAPI pública em produção
+        const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`);
+        
+        if (response.status === 200) {
+          const dados = await response.json();
+          DOM.outlet.innerHTML = gerarCardEmpresaHTML(dados);
+        } else if (response.status === 404) {
+          DOM.outlet.innerHTML = gerarAlertaHTML(
+            "Empresa Não Localizada (Erro 404)",
+            `O CNPJ ${formatarCNPJ(cleanCnpj)} não foi encontrado na base integrada do Governo Federal. Verifique o número digitado.`,
+            "error"
+          );
+        } else {
+          // Tratar códigos 400 ou inesperados
+          const errData = await response.json().catch(() => ({ message: "Ocorreu uma falha inesperada na requisição." }));
+          DOM.outlet.innerHTML = gerarAlertaHTML(
+            "Validação Recusada (Erro 400)",
+            errData.message || "CNPJ possui estrutura divergente.",
+            "error"
+          );
+        }
+      } catch (error) {
+        // Fluxo Alternativo A2: Indisponibilidade ou falha de conexão
+        DOM.outlet.innerHTML = gerarAlertaHTML(
+          "Falha de Conexão (Erro de Rede)",
+          "Não foi possível contactar a BrasilAPI. Verifique sua conexão ou tente novamente mais tarde.",
+          "error"
+        );
+      } finally {
+        setLoaderState(false);
+      }
+    };
+
+    // Listeners do Formulário
+    DOM.input.addEventListener("input", handleInputMask);
+
+    DOM.form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      realizarConsultaCNPJ(DOM.input.value);
+    });
+
+    // Listeners do Painel Sandbox para testar os cenários da documentação (PDF)
+    DOM.btnMockSuccess.addEventListener("click", () => {
+      setLoaderState(true);
+      setTimeout(() => {
+        DOM.input.value = formatarCNPJ(MOCKS[200].cnpj);
+        DOM.outlet.innerHTML = gerarCardEmpresaHTML(MOCKS[200]);
+        setLoaderState(false);
+      }, 600);
+    });
+
+    DOM.btnMock400.addEventListener("click", () => {
+      setLoaderState(true);
+      setTimeout(() => {
+        DOM.input.value = "123-CNPJ-ERRADO";
+        DOM.outlet.innerHTML = gerarAlertaHTML(
+          "Entrada Inválida (A1 - Erro 400)",
+          MOCKS[400].message,
+          "error"
+        );
+        setLoaderState(false);
+      }, 500);
+    });
+
+    DOM.btnMock404.addEventListener("click", () => {
+      setLoaderState(true);
+      setTimeout(() => {
+        DOM.input.value = "00.000.000/0001-91";
+        DOM.outlet.innerHTML = gerarAlertaHTML(
+          "Não Localizado (A1 - Erro 404)",
+          MOCKS[404].message,
+          "error"
+        );
+        setLoaderState(false);
+      }, 500);
+    });
+
+    DOM.btnMock500.addEventListener("click", () => {
+      setLoaderState(true);
+      setTimeout(() => {
+        // Fluxo Alternativo A2 - Indisponibilidade
+        DOM.outlet.innerHTML = gerarAlertaHTML(
+          "Instabilidade do Serviço (A2 - Erro 500)",
+          "A API de dados cadastrais apresentou indisponibilidade temporária. Sugerimos que tente novamente mais tarde.",
+          "error"
+        );
+        setLoaderState(false);
+      }, 500);
+    });
+  </script>
+</body>
+</html>
