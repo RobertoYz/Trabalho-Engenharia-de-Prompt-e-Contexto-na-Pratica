@@ -120,8 +120,10 @@ A tabela abaixo evidencia o ganho de performance e a redução de custos proporc
 
 A aplicação gerada com o método curado encontra-se publicada e funcional através do GitHub Pages.
 
-🔗 **Acesse a aplicação aqui:** `[]`
+🔗 **Acesse as aplicações aqui:**
 
+* [Versão COM Curadoria (Link Principal)](https://robertoyz.github.io/Trabalho-Engenharia-de-Prompt-e-Contexto-na-Pratica/)
+* [Versão SEM Curadoria (Link Secundário)](https://robertoyz.github.io/Trabalho-Engenharia-de-Prompt-e-Contexto-na-Pratica/sem-curadoria.html)
 ---
 
 ## 8. Equipe Responsável
