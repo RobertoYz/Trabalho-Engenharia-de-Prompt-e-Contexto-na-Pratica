@@ -126,6 +126,8 @@ A aplicação gerada com o método curado encontra-se publicada e funcional atra
 * [Versão SEM Curadoria (Link Secundário)](https://robertoyz.github.io/Trabalho-Engenharia-de-Prompt-e-Contexto-na-Pratica/sem-curadoria.html)
 ---
 
+LINK APRESENTAÇÃO: https://www.canva.com/design/DAHSxJXI-FY/MSaJGBaAbCn93qCnX1eoog/edit
+
 ## 8. Equipe Responsável
 
 * Ademar de Araújo Teisen - 23182969-2
